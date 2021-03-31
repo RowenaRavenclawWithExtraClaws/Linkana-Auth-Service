@@ -2,8 +2,10 @@
   "name": "auth-service",
   "version": "1.0.0",
   "description": "Authentication service for the Linkana IoT web app",
+  "type": "module",
   "main": "index.js",
   "scripts": {
+    "start": "npm start",
     "test": "npm run test"
   },
   "author": "Abdelrahman Nasser",
