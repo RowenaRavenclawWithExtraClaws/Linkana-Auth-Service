@@ -1,9 +1,10 @@
+import queries from "../prisma/queries.js";
 import { statusCodes } from "../utility/constants.js";
 
-const handleGetUsers = (req, res) => {
-  res
-    .status(statusCodes.ok)
-    .send({ page: 1, users: [{ username: "user1" }, { username: "user2" }] });
+const handleGetUsers = async (req, res) => {
+  const users = await queries.getUsers();
+
+  res.status(statusCodes.ok).send(users);
 };
 
 const handleGetUserById = (req, res) => {
@@ -31,8 +32,10 @@ const handleRegisterUser = (req, res) => {
   res.status(statusCodes.created).send(req.body);
 };
 
-const handleAddUser = (req, res) => {
-  res.status(statusCodes.created).send(req.body);
+const handleAddUser = async (req, res) => {
+  const newUser = await queries.createUser(req.body);
+
+  res.status(statusCodes.created).send(newUser);
 };
 
 const handleAddCompany = (req, res) => {
