@@ -1,10 +1,32 @@
-// Prisma schema file,
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model companies {
+  name    String
+  id      Int    @default(autoincrement())
+  email   String
+  phone   String
+  address String
+
+  @@id([id, email, phone])
+}
+
+model users {
+  username       String
+  password       String
+  number_of_logs Decimal  @db.Decimal
+  last_name      String?
+  id             Int      @default(autoincrement())
+  first_name     String?
+  email          String
+  company_id     Decimal? @db.Decimal
+  is_super       Boolean
+
+  @@id([username, id])
 }
