@@ -1,13 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import Prisma from "@prisma/client";
 
+const { PrismaClient } = Prisma; // get prisma client constructor
 const prisma = new PrismaClient(); // initialize prisma client
 
 const disconnectPrismaClient = async () => await prisma.$disconnect();
 
 // create new database record
-const createUserRecord = async (data) => await prisma.users.create(data);
+const createUserRecord = async (data) =>
+  await prisma.users.create({ data: data });
 
-const createCompanyRecord = async (data) => await prisma.companies.create(data);
+const createCompanyRecord = async (data) =>
+  await prisma.companies.create({ data: data });
 
 // get database records
 const getUserRecords = async () => await prisma.users.findMany();
