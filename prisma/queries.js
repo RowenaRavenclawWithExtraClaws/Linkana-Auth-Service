@@ -54,7 +54,7 @@ const queries = {
   updateUser: updateUserRecord,
   updateCompany: updateCompanyRecord,
   deleteUser: deleteUserRecord,
-  deleteCompany: deleteCompaniesRecord,
+  deleteCompany: deleteCompanyRecord,
 };
 
 export default queries;
