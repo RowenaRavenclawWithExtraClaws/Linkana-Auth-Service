@@ -46,7 +46,7 @@ const deleteCompanyRecord = async (id) =>
 const queries = {
   disconnectPrisma: disconnectPrismaClient,
   createUser: createUserRecord,
-  createCompany: createCompaniesRecord,
+  createCompany: createCompanyRecord,
   getUsers: getUserRecords,
   getCompanies: getCompanyRecords,
   getUserById: getUserRecordById,
