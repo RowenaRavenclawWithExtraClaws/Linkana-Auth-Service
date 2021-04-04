@@ -9,85 +9,100 @@ const disconnectPrismaClient = async () => await prisma.$disconnect();
 // create new database record
 const createUserRecord = async (data) => {
   try {
-    return await prisma.users.create({ data: data });
+    return { success: true, msg: await prisma.users.create({ data: data }) };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 const createCompanyRecord = async (data) => {
   try {
-    return await prisma.companies.create({ data: data });
+    return {
+      success: true,
+      msg: await prisma.companies.create({ data: data }),
+    };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 // get database records
 const getUserRecords = async () => {
   try {
-    return await prisma.users.findMany();
+    return { success: true, msg: await prisma.users.findMany() };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 const getCompanyRecords = async () => {
   try {
-    return await prisma.companies.findMany();
+    return { success: true, msg: await prisma.companies.findMany() };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 // get record by id
 const getUserRecordById = async (id) => {
   try {
-    return await prisma.users.findUnique({
-      where: { id: id },
-    });
+    return {
+      success: true,
+      msg: await prisma.users.findUnique({
+        where: { id: id },
+      }),
+    };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 const getCompanyRecordById = async (id) => {
   try {
-    return await prisma.companies.findUnique({
-      where: { id: id },
-    });
+    return {
+      success: true,
+      msg: await prisma.companies.findUnique({
+        where: { id: id },
+      }),
+    };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 // update record
 const updateUserRecord = async (id, data) => {
   try {
-    return await prisma.users.update({ where: { id: id }, data: data });
+    return {
+      success: true,
+      msg: await prisma.users.update({ where: { id: id }, data: data }),
+    };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 const updateCompanyRecord = async (id, data) => {
   try {
-    return await prisma.companies.update({ where: { id: id }, data: data });
+    return {
+      success: true,
+      msg: await prisma.companies.update({ where: { id: id }, data: data }),
+    };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
 // delete record
 const deleteUserRecord = async (id) => {
   try {
-    await prisma.users.delete({
+    await prisma.users.deleteMany({
       where: { id: id },
     });
 
-    return "user has been deleted successfuly";
+    return { success: true, msg: "user has been deleted successfuly" };
   } catch (err) {
-    return errors[err.code];
+    return { success: false, msg: errors[err.code] };
   }
 };
 
@@ -97,7 +112,7 @@ const deleteCompanyRecord = async (id) => {
       where: { id: id },
     });
 
-    return "company has been deleted successfuly";
+    return { success: true, msg: "company has been deleted successfuly" };
   } catch (err) {
     return errors[err.code];
   }
