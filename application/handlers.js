@@ -1,5 +1,6 @@
 import queries from "../prisma/queries.js";
 import { statusCodes } from "../utility/constants.js";
+import { validateUserData } from "../utility/validation.js";
 
 const handleGetUsers = async (req, res) => {
   const obj = await queries.getUsers();
@@ -37,10 +38,12 @@ const handleRegisterUser = (req, res) => {
 };
 
 const handleAddUser = async (req, res) => {
-  const obj = await queries.createUser(req.body);
-  const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
+  if (validateUserData(req.body)) {
+    const obj = await queries.createUser(req.body);
+    const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
 
-  res.status(statusCode).send(obj.msg);
+    res.status(statusCode).send(obj.msg);
+  } else res.status(statusCodes.badReq).send("data are not valid");
 };
 
 const handleAddCompany = (req, res) => {
