@@ -2,13 +2,17 @@ import queries from "../prisma/queries.js";
 import { statusCodes } from "../utility/constants.js";
 
 const handleGetUsers = async (req, res) => {
-  const users = await queries.getUsers();
+  const obj = await queries.getUsers();
+  const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
 
-  res.status(statusCodes.ok).send(users);
+  res.status(statusCode).send(obj.msg);
 };
 
-const handleGetUserById = (req, res) => {
-  res.status(statusCodes.ok).send({ id: req.params.id, username: "user1" });
+const handleGetUserById = async (req, res) => {
+  const obj = await queries.getUserById(Number(req.query.id));
+  const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
+
+  res.status(statusCode).send(obj.msg);
 };
 
 const handleGetCompanies = (req, res) => {
@@ -33,9 +37,10 @@ const handleRegisterUser = (req, res) => {
 };
 
 const handleAddUser = async (req, res) => {
-  const newUser = await queries.createUser(req.body);
+  const obj = await queries.createUser(req.body);
+  const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
 
-  res.status(statusCodes.created).send(newUser);
+  res.status(statusCode).send(obj.msg);
 };
 
 const handleAddCompany = (req, res) => {
@@ -50,8 +55,11 @@ const handleEditCompany = (req, res) => {
   res.status(statusCodes.ok).send(req.body);
 };
 
-const handleDeleteUser = (req, res) => {
-  res.status(statusCodes.noContent).send("deleted");
+const handleDeleteUser = async (req, res) => {
+  const obj = await queries.deleteUser(Number(req.query.id));
+  const statusCode = obj.success ? statusCodes.noContent : statusCodes.badReq;
+
+  res.status(statusCode).send(obj.msg);
 };
 
 const handleDeleteCompany = (req, res) => {
