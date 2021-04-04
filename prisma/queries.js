@@ -81,9 +81,11 @@ const updateCompanyRecord = async (id, data) => {
 // delete record
 const deleteUserRecord = async (id) => {
   try {
-    return prisma.users.delete({
+    await prisma.users.delete({
       where: { id: id },
     });
+
+    return "user has been deleted successfuly";
   } catch (err) {
     return errors[err.code];
   }
@@ -91,9 +93,11 @@ const deleteUserRecord = async (id) => {
 
 const deleteCompanyRecord = async (id) => {
   try {
-    return prisma.companies.delete({
+    await prisma.companies.delete({
       where: { id: id },
     });
+
+    return "company has been deleted successfuly";
   } catch (err) {
     return errors[err.code];
   }
