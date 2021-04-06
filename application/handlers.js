@@ -1,6 +1,11 @@
 import queries from "../prisma/queries.js";
 import { statusCodes } from "../utility/constants.js";
-import { validateUserData } from "../utility/validation.js";
+import {
+  removeCompanyUneditableFields,
+  removeUserUneditableFields,
+  validateCompanyData,
+  validateUserData,
+} from "../utility/validation.js";
 
 const handleGetUsers = async (req, res) => {
   const obj = await queries.getUsers();
@@ -16,15 +21,18 @@ const handleGetUserById = async (req, res) => {
   res.status(statusCode).send(obj.msg);
 };
 
-const handleGetCompanies = (req, res) => {
-  res.status(statusCodes.ok).send({
-    page: 1,
-    companies: [{ name: "company1" }, { username: "user2" }],
-  });
+const handleGetCompanies = async (req, res) => {
+  const obj = await queries.getCompanies();
+  const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
+
+  res.status(statusCode).send(obj.msg);
 };
 
-const handleGetCompanyById = (req, res) => {
-  res.status(statusCodes.ok).send({ id: req.params.id, name: "company1" });
+const handleGetCompanyById = async (req, res) => {
+  const obj = await queries.getCompanyById(Number(req.query.id));
+  const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
+
+  res.status(statusCode).send(obj.msg);
 };
 
 const handleLoginUser = (req, res) => {
@@ -43,19 +51,38 @@ const handleAddUser = async (req, res) => {
     const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
 
     res.status(statusCode).send(obj.msg);
-  } else res.status(statusCodes.badReq).send("data are not valid");
+  } else res.status(statusCodes.badReq).send("user data are not valid");
 };
 
-const handleAddCompany = (req, res) => {
-  res.status(statusCodes.created).send(req.body);
+const handleAddCompany = async (req, res) => {
+  if (validateCompanyData(req.body)) {
+    const obj = await queries.createUser(req.body);
+    const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
+
+    res.status(statusCode).send(obj.msg);
+  } else res.status(statusCodes.badReq).send("company data are not valid");
 };
 
-const handleEditUser = (req, res) => {
-  res.status(statusCodes.ok).send(req.body);
+const handleEditUser = async (req, res) => {
+  if (validateUserData(req.body, true)) {
+    removeUserUneditableFields(req.body);
+
+    const obj = await queries.updateUser(Number(req.query.id), req.body);
+    const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
+
+    res.status(statusCode).send(obj.msg);
+  } else res.status(statusCodes.badReq).send("user data are not valid");
 };
 
-const handleEditCompany = (req, res) => {
-  res.status(statusCodes.ok).send(req.body);
+const handleEditCompany = async (req, res) => {
+  if (validateCompanyData(req.body)) {
+    removeCompanyUneditableFields(req.body);
+
+    const obj = await queries.updateCompany(Number(req.query.id), req.body);
+    const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
+
+    res.status(statusCode).send(obj.msg);
+  } else res.status(statusCodes.badReq).send("company data are not valid");
 };
 
 const handleDeleteUser = async (req, res) => {
@@ -65,8 +92,11 @@ const handleDeleteUser = async (req, res) => {
   res.status(statusCode).send(obj.msg);
 };
 
-const handleDeleteCompany = (req, res) => {
-  res.status(statusCodes.noContent).send("deleted");
+const handleDeleteCompany = async (req, res) => {
+  const obj = await queries.deleteCompany(Number(req.query.id));
+  const statusCode = obj.success ? statusCodes.noContent : statusCodes.badReq;
+
+  res.status(statusCode).send(obj.msg);
 };
 
 const handlers = {
