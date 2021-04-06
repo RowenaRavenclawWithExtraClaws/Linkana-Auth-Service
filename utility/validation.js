@@ -7,9 +7,9 @@ const validateUsername = (username) => {
 };
 
 const validateFirstName = (name) => {
-  const nameRegex = /^\S+\w{8,32}\S{1,}/;
+  const nameRegex = /^\S+\w{3,32}\S{1,}/;
 
-  if (!nname.match(nameRegex)) return false;
+  if (!name.match(nameRegex)) return false;
 
   return true;
 };
@@ -27,15 +27,15 @@ const validateEmail = (email) => {
   return email.match(emailRegx);
 };
 
-export const validateUserData = (user) => {
-  const isValidUsername = validateUsername(user.username);
+export const validateUserData = (user, edit = false) => {
+  const isValidUsername = edit ? true : validateUsername(user.username);
   const isValidFirstName = user.first_name
     ? validateFirstName(user.first_name)
-    : false;
+    : true;
   const isValidLastName = user.last_name
-    ? validateLastName(user.last_name)
-    : false;
-  const isValidEmail = validateEmail(user.email);
+    ? validateFirstName(user.last_name)
+    : true;
+  const isValidEmail = edit ? true : validateEmail(user.email);
 
   return isValidUsername && isValidEmail && isValidFirstName && isValidLastName;
 };
@@ -44,5 +44,12 @@ export const validateCompanyData = (company) => {
   const isValidName = validateCompanyName(company.name);
   const isValidEmail = validateEmail(company.email);
 
-  return isValidname && isValidEmail;
+  return isValidName && isValidEmail;
 };
+
+export const removeUserUneditableFields = (user) => {
+  delete user.id;
+  delete user.username;
+};
+
+export const removeCompanyUneditableFields = (company) => delete company.id;
