@@ -75,9 +75,10 @@ const updateUserRecord = async (id, data) => {
   try {
     return {
       success: true,
-      msg: await prisma.users.update({ where: { id: id }, data: data }),
+      msg: await prisma.users.updateMany({ where: { id: id }, data: data }),
     };
   } catch (err) {
+    console.log(err);
     return { success: false, msg: errors[err.code] };
   }
 };
@@ -86,7 +87,7 @@ const updateCompanyRecord = async (id, data) => {
   try {
     return {
       success: true,
-      msg: await prisma.companies.update({ where: { id: id }, data: data }),
+      msg: await prisma.companies.updateMany({ where: { id: id }, data: data }),
     };
   } catch (err) {
     return { success: false, msg: errors[err.code] };
@@ -108,7 +109,7 @@ const deleteUserRecord = async (id) => {
 
 const deleteCompanyRecord = async (id) => {
   try {
-    await prisma.companies.delete({
+    await prisma.companies.deleteMany({
       where: { id: id },
     });
 
