@@ -1,9 +1,15 @@
 import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
 import handlers from "./handlers.js";
 
 const app = express(); // initialize an express instance
 
-app.use(express.text()); // parse json req body
+app.use(helmet()); // enhance your API's security
+app.use(cors()); // enabling CORS for all requests
+app.use(morgan("combined")); // log HTTP requests
+app.use(express.text()); // parse text req body
 app.use(express.json()); // parse json req body
 
 // GET endpoints
