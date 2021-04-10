@@ -7,3 +7,5 @@ export const statusCodes = {
   unauth: 401,
   forbid: 403,
 };
+
+export const accessTokenSecret = process.env.KID;

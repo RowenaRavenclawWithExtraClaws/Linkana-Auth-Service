@@ -6,6 +6,23 @@ const prisma = new PrismaClient(); // initialize prisma client
 
 const disconnectPrismaClient = async () => await prisma.$disconnect();
 
+// check the correctness of username and password
+const checkLoginCredentials = async (user) => {
+  try {
+    const msg = await prisma.users.findMany({
+      where: { username: user.username, password: user.password },
+    });
+
+    return {
+      success: msg.length,
+      msg: msg,
+    };
+  } catch (err) {
+    console.log(err);
+    return { success: false, msg: errors[err.code] };
+  }
+};
+
 // create new database record
 const createUserRecord = async (data) => {
   try {
@@ -121,6 +138,7 @@ const deleteCompanyRecord = async (id) => {
 
 const queries = {
   disconnectPrisma: disconnectPrismaClient,
+  checkLoginCred: checkLoginCredentials,
   createUser: createUserRecord,
   createCompany: createCompanyRecord,
   getUsers: getUserRecords,
