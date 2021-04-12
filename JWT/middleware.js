@@ -1,6 +1,6 @@
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
-import { audience, jwksUri, issuer } from "../utility/constants";
+import { audience, jwksUri, issuer } from "../utility/constants.js";
 
 // creating JWT middleware
 const checkJwt = jwt({
