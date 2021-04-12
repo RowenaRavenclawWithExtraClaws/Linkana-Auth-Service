@@ -1,5 +1,6 @@
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
+import { audience, jwksUri, issuer } from "../utility/constants";
 
 // creating JWT middleware
 const checkJwt = jwt({
@@ -7,12 +8,12 @@ const checkJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://dev-np4yj8c0.eu.auth0.com/.well-known/jwks.json`,
+    jwksUri: `${jwksUri}`,
   }),
 
   // Validate the audience and the issuer.
-  audience: "https://auth-api",
-  issuer: `https://dev-np4yj8c0.eu.auth0.com/`,
+  audience: audience,
+  issuer: issuer,
   algorithms: ["RS256"],
 });
 
