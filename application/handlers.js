@@ -1,4 +1,5 @@
 import request from "request";
+import options from "../JWT/options.js";
 import queries from "../prisma/queries.js";
 import { statusCodes } from "../utility/constants.js";
 import {
@@ -7,14 +8,6 @@ import {
   validateCompanyData,
   validateUserData,
 } from "../utility/validation.js";
-
-const options = {
-  method: "POST",
-  url: "https://dev-np4yj8c0.eu.auth0.com/oauth/token",
-  headers: { "content-type": "application/json" },
-  body:
-    '{"client_id":"SMZrZVSyipDwLBhPglfHfo0NKNUShWXU","client_secret":"7XGjlKKQiX2RTiUfJej_0wi-7FKbs7yVzabAz7Abocy-fE2dSQ7Tx4kCI17TdZLR","audience":"https://auth-api","grant_type":"client_credentials"}',
-};
 
 const handleGetUsers = async (req, res) => {
   const obj = await queries.getUsers();
@@ -48,7 +41,6 @@ const handleLoginUser = async (req, res) => {
   const truthObj = await queries.checkLoginCred(req.body);
 
   let msg = "username or password are incorrect";
-  let accessToken = "";
   let statusCode = statusCodes.badReq;
 
   if (truthObj.success) {
@@ -61,7 +53,7 @@ const handleLoginUser = async (req, res) => {
           .status(statusCodes.ok)
           .send({ access_token: JSON.parse(body).access_token });
     });
-  } else res.status(statusCode).send({ msg: msg, accessToken: accessToken });
+  } else res.status(statusCode).send({ msg: msg, access_token: "" });
 };
 
 const handleRegisterUser = (req, res) => {
