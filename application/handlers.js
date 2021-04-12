@@ -52,10 +52,14 @@ const handleLoginUser = async (req, res) => {
   let statusCode = statusCodes.badReq;
 
   if (truthObj.success) {
+    // get JWT from auth0 API
     request(options, (error, response, body) => {
       if (error)
         res.status(statusCodes.forbid).send({ error: error, accessToken: "" });
-      else res.status(statusCodes.ok).send({ accessToken: body.access_token });
+      else
+        res
+          .status(statusCodes.ok)
+          .send({ access_token: JSON.parse(body).access_token });
     });
   } else res.status(statusCode).send({ msg: msg, accessToken: accessToken });
 };
