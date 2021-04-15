@@ -1,7 +1,8 @@
 import request from "request";
 import options from "../JWT/options.js";
 import queries from "../prisma/queries.js";
-import { statusCodes } from "../utility/constants.js";
+import { messages, statusCodes } from "../utility/constants.js";
+import sendEmail from "../utility/sendEmail.js";
 import {
   removeCompanyUneditableFields,
   removeUserUneditableFields,
@@ -56,8 +57,17 @@ const handleLoginUser = async (req, res) => {
   } else res.status(statusCode).send({ msg: msg, access_token: "" });
 };
 
-const handleRegisterUser = (req, res) => {
-  res.status(statusCodes.created).send(req.body);
+const handleRegisterUser = async (req, res) => {
+  const userData = req.body;
+
+  if (validateUserData(userData)) {
+    const obj = await queries.createUser(userData);
+    const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
+    const emailSent = await sendEmail(userData.email);
+
+    if (emailSent) res.status(statusCode).send(messages.verifyEmail);
+    else res.status(500).send(messages.failedRegister);
+  } else res.status(statusCodes.badReq).send(messages.userNotRight);
 };
 
 const handleAddUser = async (req, res) => {
@@ -66,7 +76,7 @@ const handleAddUser = async (req, res) => {
     const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
 
     res.status(statusCode).send(obj.msg);
-  } else res.status(statusCodes.badReq).send("user data are not valid");
+  } else res.status(statusCodes.badReq).send(messages.userNotRight);
 };
 
 const handleAddCompany = async (req, res) => {
@@ -75,7 +85,7 @@ const handleAddCompany = async (req, res) => {
     const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
 
     res.status(statusCode).send(obj.msg);
-  } else res.status(statusCodes.badReq).send("company data are not valid");
+  } else res.status(statusCodes.badReq).send(messages.companyNotRight);
 };
 
 const handleEditUser = async (req, res) => {
@@ -86,7 +96,7 @@ const handleEditUser = async (req, res) => {
     const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
 
     res.status(statusCode).send(obj.msg);
-  } else res.status(statusCodes.badReq).send("user data are not valid");
+  } else res.status(statusCodes.badReq).send(messages.userNotRight);
 };
 
 const handleEditCompany = async (req, res) => {
@@ -97,7 +107,7 @@ const handleEditCompany = async (req, res) => {
     const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
 
     res.status(statusCode).send(obj.msg);
-  } else res.status(statusCodes.badReq).send("company data are not valid");
+  } else res.status(statusCodes.badReq).send(messages.companyNotRight);
 };
 
 const handleDeleteUser = async (req, res) => {

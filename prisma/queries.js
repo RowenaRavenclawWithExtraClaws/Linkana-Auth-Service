@@ -28,6 +28,7 @@ const createUserRecord = async (data) => {
   try {
     return { success: true, msg: await prisma.users.create({ data: data }) };
   } catch (err) {
+    console.log(err);
     return { success: false, msg: errors[err.code] };
   }
 };
