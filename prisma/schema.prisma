@@ -7,26 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model companies {
-  name    String
-  id      Int    @default(autoincrement())
-  email   String
-  phone   String
-  address String
-
-  @@id([id, email, phone])
-}
-
 model users {
-  username       String
-  password       String
-  number_of_logs Decimal  @db.Decimal
-  last_name      String?
-  id             Int      @default(autoincrement())
-  first_name     String?
-  email          String
-  company_id     Decimal? @db.Decimal
-  is_super       Boolean
+  verified         Boolean
+  username         String
+  number_of_logins BigInt
+  last_name        String?
+  is_super         Boolean
+  id               Int     @default(autoincrement())
+  first_name       String?
+  email            String
+  company_id       Int?
+  password         String
 
-  @@id([username, id])
+  @@id([id, username, email])
+  @@unique([username, email], name: "users_username_email_key")
 }
