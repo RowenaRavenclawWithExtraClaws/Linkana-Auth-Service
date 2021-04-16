@@ -9,13 +9,14 @@ const disconnectPrismaClient = async () => await prisma.$disconnect();
 // check the correctness of username and password
 const checkLoginCredentials = async (user) => {
   try {
-    const msg = await prisma.users.findMany({
+    const userFound = await prisma.users.findMany({
       where: { username: user.username, password: user.password },
     });
 
     return {
-      success: msg.length,
-      msg: msg,
+      success: userFound.length,
+      verified: userFound.length ? userFound[0].verified : false,
+      msg: "found",
     };
   } catch (err) {
     console.log(err);
