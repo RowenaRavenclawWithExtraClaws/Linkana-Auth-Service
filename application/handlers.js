@@ -62,12 +62,24 @@ const handleRegisterUser = async (req, res) => {
 
   if (validateUserData(userData)) {
     const obj = await queries.createUser(userData);
-    const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
-    const emailSent = await sendEmail(userData.email);
 
-    if (emailSent) res.status(statusCode).send(messages.verifyEmail);
-    else res.status(500).send(messages.failedRegister);
+    if (obj.success) {
+      const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
+      const emailSent = await sendEmail(userData.email);
+
+      if (emailSent) res.status(statusCode).send(messages.verifyEmail);
+      else res.status(500).send(messages.failedRegister);
+    } else res.status(statusCodes.badReq).send(obj.msg);
   } else res.status(statusCodes.badReq).send(messages.userNotRight);
+};
+
+const verifyUserEmail = async (req, res) => {
+  const foundObj = await queries.findToken(req.body.token);
+
+  if (foundObj.msg) {
+    // update user to be verified
+    res.status(statusCodes.ok).send("user email has been verified successfuly");
+  } else res.status(statusCodes.badReq).send("wrong verification token!");
 };
 
 const handleAddUser = async (req, res) => {
