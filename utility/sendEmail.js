@@ -1,6 +1,9 @@
 import nodemailer from "nodemailer";
 import { characters } from "./constants.js";
+import queries from "../prisma/queries.js";
 
+const email = "abdelrahmannasser48@gmail.com";
+const password = "youaredonky";
 // generate confirmation token with 15 characters
 const generateRandomToken = () => {
   let token = "";
@@ -18,12 +21,11 @@ const sendEmail = async (userEmail) => {
   const account = await nodemailer.createTestAccount();
 
   const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    service: "gmail",
+    type: "oauth2",
     auth: {
-      user: account.user, // generated ethereal user
-      pass: account.pass, // generated ethereal password
+      user: email,
+      pass: password,
     },
   });
 
@@ -37,6 +39,8 @@ const sendEmail = async (userEmail) => {
       text: `Click the link below to verify your account.
         https://www.linkana.com/auth/confirm/${token}`,
     });
+
+    queries.addToken({ token: token });
 
     console.log(`Message sent: ${info.messageId}`);
 
