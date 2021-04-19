@@ -22,3 +22,7 @@ model users {
   @@id([id, username, email])
   @@unique([username, email], name: "users_username_email_key")
 }
+
+model tokens {
+  token String @id
+}
