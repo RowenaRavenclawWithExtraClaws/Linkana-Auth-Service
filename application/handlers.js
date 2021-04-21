@@ -2,6 +2,7 @@ import request from "request";
 import options from "../JWT/options.js";
 import queries from "../prisma/queries.js";
 import { messages, statusCodes } from "../utility/constants.js";
+import { parseValidationToken } from "../utility/helpers.js";
 import sendEmail from "../utility/sendEmail.js";
 import {
   removeCompanyUneditableFields,
@@ -41,10 +42,10 @@ const handleGetCompanyById = async (req, res) => {
 const handleLoginUser = async (req, res) => {
   const truthObj = await queries.checkLoginCred(req.body);
 
-  let msg = "username or password are incorrect";
+  let msg = truthObj.verified ? messages.wrongUser : messages.notVerified;
   let statusCode = statusCodes.badReq;
 
-  if (truthObj.success) {
+  if (truthObj.success && truthObj.verified) {
     // get JWT from auth0 API
     request(options, (error, response, body) => {
       if (error)
@@ -65,7 +66,7 @@ const handleRegisterUser = async (req, res) => {
 
     if (obj.success) {
       const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
-      const emailSent = await sendEmail(userData.email);
+      const emailSent = await sendEmail(userData.username, userData.email);
 
       if (emailSent) res.status(statusCode).send(messages.verifyEmail);
       else res.status(500).send(messages.failedRegister);
@@ -74,11 +75,20 @@ const handleRegisterUser = async (req, res) => {
 };
 
 const verifyUserEmail = async (req, res) => {
-  const foundObj = await queries.findToken(req.body.token);
+  const token = req.body.token;
+  const foundObj = await queries.findToken(token);
 
   if (foundObj.msg) {
-    // update user to be verified
-    res.status(statusCodes.ok).send("user email has been verified successfuly");
+    const username = parseValidationToken(token);
+
+    let userData = await queries.getUserByUsername(username);
+    const statusCode = userData.success ? statusCodes.ok : statusCodes.badReq;
+
+    userData.msg[0].verified = true;
+
+    await queries.updateUser(userData.id, userData.msg[0]);
+
+    res.status(statusCode).send("user email has been verified successfuly");
   } else res.status(statusCodes.badReq).send("wrong verification token!");
 };
 
@@ -143,6 +153,7 @@ const handlers = {
   getCompanyById: handleGetCompanyById,
   loginUser: handleLoginUser,
   registerUser: handleRegisterUser,
+  verifyUser: verifyUserEmail,
   addUser: handleAddUser,
   addCompany: handleAddCompany,
   editUser: handleEditUser,
