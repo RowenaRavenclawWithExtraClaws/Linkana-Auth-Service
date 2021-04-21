@@ -27,7 +27,7 @@ const checkLoginCredentials = async (user) => {
 // create new token database record
 const addTokenRecord = async (token) => {
   try {
-    await prisma.tokens.create({ data: token });
+    await prisma.tokens.create({ data: { token: token } });
   } catch (err) {
     console.log(err);
   }
@@ -89,8 +89,22 @@ const getUserRecordById = async (id) => {
   try {
     return {
       success: true,
-      msg: await prisma.users.findUnique({
+      msg: await prisma.users.findMany({
         where: { id: id },
+      }),
+    };
+  } catch (err) {
+    return { success: false, msg: errors[err.code] };
+  }
+};
+
+// get record by username
+const getUserRecordByUsername = async (username) => {
+  try {
+    return {
+      success: true,
+      msg: await prisma.users.findMany({
+        where: { username: username },
       }),
     };
   } catch (err) {
@@ -170,6 +184,7 @@ const queries = {
   getUsers: getUserRecords,
   getCompanies: getCompanyRecords,
   getUserById: getUserRecordById,
+  getUserByUsername: getUserRecordByUsername,
   getCompanyById: getCompanyRecordById,
   updateUser: updateUserRecord,
   updateCompany: updateCompanyRecord,
