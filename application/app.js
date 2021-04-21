@@ -16,6 +16,7 @@ app.use(express.json()); // parse json req body
 // unauthorized endpoints
 app.post("/auth/users/login", handlers.loginUser);
 app.post("/auth/users/register", handlers.registerUser);
+app.post("/auth/users/verify", handlers.verifyUser);
 
 app.use(checkJwt); // check for JWT
 
