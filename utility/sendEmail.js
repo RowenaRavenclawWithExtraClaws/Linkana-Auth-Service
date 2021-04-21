@@ -1,11 +1,11 @@
 import nodemailer from "nodemailer";
-import { characters } from "./constants.js";
+import { characters, tokenUserIndex } from "./constants.js";
 import queries from "../prisma/queries.js";
 
 const email = "abdelrahmannasser48@gmail.com";
 const password = "youaredonky";
 // generate confirmation token with 15 characters
-const generateRandomToken = () => {
+const generateRandomToken = (username) => {
   let token = "";
   let len = 15;
 
@@ -14,10 +14,16 @@ const generateRandomToken = () => {
       characters[Math.floor(Math.random() * (characters.length - 1))]
     );
 
+  // add username to the middle section of the token
+  token = `${token.slice(0, tokenUserIndex)}${username}${token.slice(
+    tokenUserIndex,
+    token.length
+  )}${username.length}`;
+
   return token;
 };
 
-const sendEmail = async (userEmail) => {
+const sendEmail = async (username, userEmail) => {
   const account = await nodemailer.createTestAccount();
 
   const transporter = nodemailer.createTransport({
@@ -29,7 +35,7 @@ const sendEmail = async (userEmail) => {
     },
   });
 
-  const token = generateRandomToken();
+  const token = generateRandomToken(username);
 
   try {
     const info = await transporter.sendMail({
@@ -40,7 +46,7 @@ const sendEmail = async (userEmail) => {
         https://www.linkana.com/auth/confirm/${token}`,
     });
 
-    queries.addToken({ token: token });
+    queries.addToken(token);
 
     console.log(`Message sent: ${info.messageId}`);
 
