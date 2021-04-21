@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 // load .env file contnets in process.env
 dotenv.config();
 
+// index for the start of username embedded in the verification token
+export const tokenUserIndex = 6;
+
 export const statusCodes = {
   ok: 200,
   created: 201,
@@ -18,6 +21,9 @@ export const messages = {
     "Registration was successful, a confirmation link is sent to your email. Please verify your email before login",
   failedRegister: "Registration failed, you can try agian any time",
   userNotRight: "user data are not valid",
+  wrongUser: "wrong username or password",
+  notVerified:
+    "your email has not been verified yet, please verify your email before login",
   companyNotRight: "company data are not valid",
 };
 
