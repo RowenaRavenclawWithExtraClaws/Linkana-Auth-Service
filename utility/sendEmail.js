@@ -3,7 +3,7 @@ import { characters, email, password, tokenUserIndex } from "./constants.js";
 import queries from "../prisma/queries.js";
 
 // generate confirmation token with 15 characters
-const generateRandomToken = (username) => {
+const generateRandomToken = (username, email) => {
   let token = "";
   let len = 15;
 
@@ -12,18 +12,16 @@ const generateRandomToken = (username) => {
       characters[Math.floor(Math.random() * (characters.length - 1))]
     );
 
-  // add username to the middle section of the token
-  token = `${token.slice(0, tokenUserIndex)}${username}${token.slice(
+  // add username and email to the middle section of the token
+  token = `${token.slice(0, tokenUserIndex)}${username}${email}${token.slice(
     tokenUserIndex,
     token.length
-  )}${username.length}`;
+  )}${username.length}${email.length}`;
 
   return token;
 };
 
 const sendEmail = async (username, userEmail) => {
-  const account = await nodemailer.createTestAccount();
-
   const transporter = nodemailer.createTransport({
     service: "gmail",
     type: "oauth2",
@@ -33,7 +31,7 @@ const sendEmail = async (username, userEmail) => {
     },
   });
 
-  const token = generateRandomToken(username);
+  const token = generateRandomToken(username, userEmail);
 
   try {
     const info = await transporter.sendMail({
