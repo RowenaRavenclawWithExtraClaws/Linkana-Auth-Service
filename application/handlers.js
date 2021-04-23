@@ -2,7 +2,10 @@ import request from "request";
 import options from "../JWT/options.js";
 import queries from "../prisma/queries.js";
 import { messages, statusCodes } from "../utility/constants.js";
-import { parseValidationToken } from "../utility/helpers.js";
+import {
+  deleteObjectsField,
+  parseValidationToken,
+} from "../utility/helpers.js";
 import sendEmail from "../utility/sendEmail.js";
 import {
   removeCompanyUneditableFields,
@@ -11,32 +14,50 @@ import {
   validateUserData,
 } from "../utility/validation.js";
 
-const handleGetUsers = async (req, res) => {
+const getUsers = async (req, res) => {
   const obj = await queries.getUsers();
   const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
 
+  if (obj.success) deleteObjectsField(obj.msg, ["id", "password"]);
+
   res.status(statusCode).send(obj.msg);
 };
 
-const handleGetUserById = async (req, res) => {
+const getUserById = async (req, res) => {
   const obj = await queries.getUserById(Number(req.query.id));
   const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
 
+  if (obj.success) deleteObjectsField([obj.msg], ["id", "password"]);
+
   res.status(statusCode).send(obj.msg);
 };
 
-const handleGetCompanies = async (req, res) => {
+const handleGetUsers = (req, res) => {
+  if (req.query.id) getUserById(req, res);
+  else getUsers(req, res);
+};
+
+const getCompanies = async (req, res) => {
   const obj = await queries.getCompanies();
   const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
 
+  if (obj.success) deleteObjectsField(obj.msg, ["id"]);
+
   res.status(statusCode).send(obj.msg);
 };
 
-const handleGetCompanyById = async (req, res) => {
+const getCompanyById = async (req, res) => {
   const obj = await queries.getCompanyById(Number(req.query.id));
   const statusCode = obj.success ? statusCodes.ok : statusCodes.badReq;
 
+  if (obj.success) deleteObjectsField([obj.msg], ["id"]);
+
   res.status(statusCode).send(obj.msg);
+};
+
+const handleGetCompanies = (req, res) => {
+  if (req.query.id) getCompanyById(req, res);
+  else getCompanies(req, res);
 };
 
 const handleLoginUser = async (req, res) => {
@@ -79,14 +100,12 @@ const verifyUserEmail = async (req, res) => {
   const foundObj = await queries.findToken(token);
 
   if (foundObj.msg) {
-    const username = parseValidationToken(token);
+    const uniqueIdentifier = parseValidationToken(token);
 
-    let userData = await queries.getUserByUsername(username);
+    let userData = await queries.getUserByUsername(uniqueIdentifier);
     const statusCode = userData.success ? statusCodes.ok : statusCodes.badReq;
 
-    userData.msg[0].verified = true;
-
-    await queries.updateUser(userData.id, userData.msg[0]);
+    await queries.updateUser(userData.msg.id, { verified: true });
 
     res.status(statusCode).send("user email has been verified successfuly");
   } else res.status(statusCodes.badReq).send("wrong verification token!");
@@ -125,6 +144,7 @@ const handleEditUser = async (req, res) => {
 };
 
 const handleEditCompany = async (req, res) => {
+  console.log(req.body);
   if (validateCompanyData(req.body)) {
     removeCompanyUneditableFields(req.body);
 
@@ -151,9 +171,9 @@ const handleDeleteCompany = async (req, res) => {
 
 const handlers = {
   getUsers: handleGetUsers,
-  getUserById: handleGetUserById,
+  getUserById: handleGetUsers,
   getCompanies: handleGetCompanies,
-  getCompanyById: handleGetCompanyById,
+  getCompanyById: handleGetCompanies,
   loginUser: handleLoginUser,
   registerUser: handleRegisterUser,
   verifyUser: verifyUserEmail,
