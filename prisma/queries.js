@@ -1,4 +1,5 @@
 import Prisma from "@prisma/client";
+import { code } from "../utility/helpers.js";
 import errors from "./errors.js";
 
 const { PrismaClient } = Prisma; // get prisma client constructor
@@ -10,7 +11,10 @@ const disconnectPrismaClient = async () => await prisma.$disconnect();
 const checkLoginCredentials = async (user) => {
   try {
     const userFound = await prisma.users.findMany({
-      where: { username: user.username, password: user.password },
+      where: {
+        username: user.username,
+        password: code.encryptMessage(user.password),
+      },
     });
 
     return {
@@ -49,7 +53,12 @@ const findTokenRecord = async (token) => {
 // create new database record
 const createUserRecord = async (data) => {
   try {
-    return { success: true, msg: await prisma.users.create({ data: data }) };
+    return {
+      success: true,
+      msg: await prisma.users.create({
+        data: { ...data, password: code.encryptMessage(data.password) },
+      }),
+    };
   } catch (err) {
     console.log(err);
     return { success: false, msg: errors[err.code] };
