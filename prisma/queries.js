@@ -1,4 +1,5 @@
 import Prisma from "@prisma/client";
+import { email, messages } from "../utility/constants.js";
 import { code } from "../utility/helpers.js";
 import errors from "./errors.js";
 
@@ -13,14 +14,22 @@ const checkLoginCredentials = async (user) => {
     const userFound = await prisma.users.findMany({
       where: {
         username: user.username,
-        password: code.encryptMessage(user.password),
       },
     });
 
+    if (userFound.length) {
+      if (code.decryptMessage(userFound[0].password) === user.password)
+        return {
+          success: true,
+          verified: userFound[0].verified,
+          msg: "found",
+        };
+    }
+
     return {
-      success: userFound.length,
-      verified: userFound.length ? userFound[0].verified : false,
-      msg: "found",
+      success: false,
+      verified: true, // indicates wrong credentials
+      msg: "not found",
     };
   } catch (err) {
     console.log(err);
@@ -45,7 +54,6 @@ const findTokenRecord = async (token) => {
       msg: await prisma.tokens.findUnique({ where: { token: token } }),
     };
   } catch (err) {
-    console.log(err);
     return { success: false, msg: errors[err.code] };
   }
 };
@@ -60,7 +68,6 @@ const createUserRecord = async (data) => {
       }),
     };
   } catch (err) {
-    console.log(err);
     return { success: false, msg: errors[err.code] };
   }
 };
@@ -96,11 +103,13 @@ const getCompanyRecords = async () => {
 // get record by id
 const getUserRecordById = async (id) => {
   try {
+    const user = await prisma.users.findUnique({
+      where: { id: id },
+    });
+
     return {
-      success: true,
-      msg: await prisma.users.findMany({
-        where: { id: id },
-      }),
+      success: user ? true : false,
+      msg: user ? user : messages.userNotRight,
     };
   } catch (err) {
     return { success: false, msg: errors[err.code] };
@@ -108,12 +117,12 @@ const getUserRecordById = async (id) => {
 };
 
 // get record by username
-const getUserRecordByUsername = async (username) => {
+const getUserRecordByUsername = async (uniqueIdentifier) => {
   try {
     return {
       success: true,
-      msg: await prisma.users.findMany({
-        where: { username: username },
+      msg: await prisma.users.findUnique({
+        where: { users_username_email_key: uniqueIdentifier },
       }),
     };
   } catch (err) {
@@ -123,11 +132,13 @@ const getUserRecordByUsername = async (username) => {
 
 const getCompanyRecordById = async (id) => {
   try {
+    const company = await prisma.companies.findUnique({
+      where: { id: id },
+    });
+
     return {
-      success: true,
-      msg: await prisma.companies.findUnique({
-        where: { id: id },
-      }),
+      success: company ? true : false,
+      msg: company ? company : messages.companyNotRight,
     };
   } catch (err) {
     return { success: false, msg: errors[err.code] };
@@ -139,10 +150,9 @@ const updateUserRecord = async (id, data) => {
   try {
     return {
       success: true,
-      msg: await prisma.users.updateMany({ where: { id: id }, data: data }),
+      msg: await prisma.users.update({ where: { id: id }, data: data }),
     };
   } catch (err) {
-    console.log(err);
     return { success: false, msg: errors[err.code] };
   }
 };
@@ -151,7 +161,7 @@ const updateCompanyRecord = async (id, data) => {
   try {
     return {
       success: true,
-      msg: await prisma.companies.updateMany({ where: { id: id }, data: data }),
+      msg: await prisma.companies.update({ where: { id: id }, data: data }),
     };
   } catch (err) {
     return { success: false, msg: errors[err.code] };
@@ -161,7 +171,7 @@ const updateCompanyRecord = async (id, data) => {
 // delete record
 const deleteUserRecord = async (id) => {
   try {
-    await prisma.users.deleteMany({
+    await prisma.users.delete({
       where: { id: id },
     });
 
@@ -173,7 +183,7 @@ const deleteUserRecord = async (id) => {
 
 const deleteCompanyRecord = async (id) => {
   try {
-    await prisma.companies.deleteMany({
+    await prisma.companies.delete({
       where: { id: id },
     });
 
