@@ -8,16 +8,15 @@ datasource db {
 }
 
 model users {
-  verified         Boolean
-  username         String
-  number_of_logins Int
-  last_name        String?
-  is_super         Boolean
-  id               Int     @default(autoincrement())
-  first_name       String?
-  email            String
-  company_id       Int?
-  password         String
+  verified   Boolean
+  username   String
+  last_name  String?
+  is_super   Boolean
+  id         Int     @default(autoincrement())
+  first_name String?
+  email      String
+  company_id Int?
+  password   String
 
   @@id([id, username, email])
   @@unique([username, email], name: "users_username_email_key")
@@ -25,4 +24,14 @@ model users {
 
 model tokens {
   token String @id
+}
+
+model companies {
+  id      Int    @id @default(autoincrement())
+  name    String
+  email   String
+  phone   String
+  address String
+
+  @@unique([name, email], name: "companies_name_email_key")
 }
