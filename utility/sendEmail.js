@@ -1,9 +1,7 @@
 import nodemailer from "nodemailer";
-import { characters, tokenUserIndex } from "./constants.js";
+import { characters, email, password, tokenUserIndex } from "./constants.js";
 import queries from "../prisma/queries.js";
 
-const email = "abdelrahmannasser48@gmail.com";
-const password = "youaredonky";
 // generate confirmation token with 15 characters
 const generateRandomToken = (username) => {
   let token = "";
