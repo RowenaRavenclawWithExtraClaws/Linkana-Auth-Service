@@ -10,7 +10,7 @@ datasource db {
 model users {
   verified         Boolean
   username         String
-  number_of_logins BigInt
+  number_of_logins Int
   last_name        String?
   is_super         Boolean
   id               Int     @default(autoincrement())
