@@ -36,3 +36,5 @@ export const issuer = process.env.ISSUER;
 export const authUrl = process.env.AUTHURL;
 export const clientID = process.env.CLIENTID;
 export const clientSecret = process.env.CLIENTSECRET;
+export const email = process.env.EMAIL;
+export const password = process.env.PASSWORD;
