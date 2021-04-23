@@ -40,9 +40,9 @@ export const validateUserData = (user, edit = false) => {
   return isValidUsername && isValidEmail && isValidFirstName && isValidLastName;
 };
 
-export const validateCompanyData = (company) => {
-  const isValidName = validateCompanyName(company.name);
-  const isValidEmail = validateEmail(company.email);
+export const validateCompanyData = (company, edit = false) => {
+  const isValidName = company.name ? validateCompanyName(company.name) : !edit;
+  const isValidEmail = company.email ? validateEmail(company.email) : !edit;
 
   return isValidName && isValidEmail;
 };
