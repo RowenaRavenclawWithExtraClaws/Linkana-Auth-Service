@@ -102,9 +102,12 @@ const handleAddUser = async (req, res) => {
 };
 
 const handleAddCompany = async (req, res) => {
-  if (validateCompanyData(req.body)) {
-    const obj = await queries.createUser(req.body);
+  if (validateCompanyData(req.body.company)) {
+    const obj = await queries.createCompany(req.body.company);
     const statusCode = obj.success ? statusCodes.created : statusCodes.badReq;
+
+    // associate compant with the user who created it
+    await queries.updateUser(req.body.user_id, { company_id: obj.msg.id });
 
     res.status(statusCode).send(obj.msg);
   } else res.status(statusCodes.badReq).send(messages.companyNotRight);
